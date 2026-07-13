@@ -952,6 +952,37 @@ areasFC.features.forEach(f => {
 
 map.fitBounds(areaLayer.getBounds(), {padding:[30,30]});
 const HOME = { bounds: areaLayer.getBounds() };
+// Safari / GitHub Pages 首次加载修复
+
+function fixMapView() {
+
+  map.invalidateSize(true);
+
+  const bounds = areaLayer.getBounds();
+
+  if (bounds && bounds.isValid()) {
+
+    map.fitBounds(bounds, {
+
+      padding: [30, 30],
+
+      animate: false
+
+    });
+
+  }
+
+}
+
+window.addEventListener('load', () => {
+
+  setTimeout(fixMapView, 300);
+
+  setTimeout(fixMapView, 1000);
+
+});
+
+window.addEventListener('resize', fixMapView);
 
 /* ── 下钻 ── */
 function drill(code){

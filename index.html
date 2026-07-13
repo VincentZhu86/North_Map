@@ -1213,59 +1213,28 @@ ui();
 /* ── 方案三：在线数据自动加载（静态托管模式） ── */
 const DATA_URL = './网点数据.json';
 
-fetch(`${DATA_URL}?t=${Date.now()}`)
-  .then(async response => {
-    if (!response.ok) {
-      throw new Error(`JSON 请求失败：HTTP ${response.status}`);
-    }
-
-    return response.json();
+fetch(DATA_URL + '?t=' + Date.now())
+  .then(r => {
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    return r.json();
   })
-  .then(data => {
-    if (
-      typeof data !== 'object' ||
-      data === null ||
-      Array.isArray(data)
-    ) {
-      throw new Error('JSON 顶层格式错误');
+  .then(d => {
+    if (!d || typeof d !== 'object' || Array.isArray(d)) {
+      throw new Error('JSON 格式错误');
     }
 
-    console.log('JSON 加载成功，条数：', Object.keys(data).length);
+    BIZ_REMOTE = d;
+    districtLabels.forEach(m => m.setIcon(dIcon(m._code)));
+    refreshColors();
 
-    BIZ_REMOTE = data;
+    if (curCode) renderDrawer();
 
-    // 分开执行，方便确定是哪一步出错
-    try {
-      districtLabels.forEach(marker => {
-        marker.setIcon(dIcon(marker._code));
-      });
-      console.log('图标更新成功');
-    } catch (error) {
-      console.error('图标更新失败：', error);
-    }
-
-    try {
-      refreshColors();
-      console.log('颜色更新成功');
-    } catch (error) {
-      console.error('颜色更新失败：', error);
-    }
-
-    try {
-      if (curCode) {
-        renderDrawer();
-      }
-      console.log('抽屉更新成功');
-    } catch (error) {
-      console.error('抽屉更新失败：', error);
-    }
-
-    toast(`已加载在线网点数据 ${Object.keys(data).length} 条`);
+    toast(`已加载在线网点数据 ${Object.keys(d).length} 条`);
   })
-  .catch(error => {
-    console.error('JSON 加载阶段失败：', error);
+  .catch(err => {
+    console.error('在线数据加载失败：', err);
 
     if (location.protocol.startsWith('http')) {
-      toast(`在线数据加载失败：${error.message}`);
+      toast(`在线数据加载失败：${err.message}`);
     }
   });

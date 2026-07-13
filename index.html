@@ -834,6 +834,29 @@ break;case"<bookViews":;case"<bookViews>":;case"</bookViews>":break;case"<workbo
 </aside>
 
 <script>
+window.addEventListener('error', function (event) {
+  console.error('页面运行错误：', event.error || event.message);
+  const id = 'runtimeErrorBox';
+  let box = document.getElementById(id);
+  if (!box) {
+    box = document.createElement('pre');
+    box.id = id;
+    box.style.cssText =
+      'position:fixed;top:90px;left:18px;right:18px;z-index:99999;' +
+      'padding:14px;background:#fff;border:2px solid #c8281e;' +
+      'color:#a31510;white-space:pre-wrap;font:13px/1.5 monospace;';
+    document.body.appendChild(box);
+  }
+  box.textContent =
+    '页面运行错误：' + event.message +
+    '\n文件：' + (event.filename || '') +
+    '\n行号：' + (event.lineno || '');
+});
+window.addEventListener('unhandledrejection', function (event) {
+  console.error('未处理的异步错误：', event.reason);
+});
+</script>
+<script>
 /* ════════════════════════════════════════════════
    ① 配置区 —— 日常维护只需要动这里
    ════════════════════════════════════════════════ */
@@ -950,26 +973,33 @@ areasFC.features.forEach(f => {
   areaLabels[p.code] = L.marker([p.ly, p.lx], {icon, interactive:false}).addTo(map);
 });
 
-map.fitBounds(areaLayer.getBounds(), {padding:[30,30]});
-const HOME = { bounds: areaLayer.getBounds() };
+const INITIAL_BOUNDS = areaLayer.getBounds();
+const HOME = {
+  bounds: INITIAL_BOUNDS && INITIAL_BOUNDS.isValid()
+    ? INITIAL_BOUNDS
+    : L.latLngBounds([[53.0, -8.5], [61.5, 2.0]])
+};
+
+if (INITIAL_BOUNDS && INITIAL_BOUNDS.isValid()) {
+  map.fitBounds(INITIAL_BOUNDS, {padding:[30,30], animate:false});
+} else {
+  map.setView([56.0, -3.5], 6);
+  console.error('北区边界无效：areasFC.features =', areasFC.features.length);
+}
 // Safari / GitHub Pages 首次加载修复
 
 function fixMapView() {
 
   map.invalidateSize(true);
 
-  const bounds = areaLayer.getBounds();
-
+  const bounds = HOME.bounds;
   if (bounds && bounds.isValid()) {
-
     map.fitBounds(bounds, {
-
       padding: [30, 30],
-
       animate: false
-
     });
-
+  } else {
+    map.setView([56.0, -3.5], 6);
   }
 
 }
@@ -1264,8 +1294,10 @@ fetch(DATA_URL + '?t=' + Date.now())
   })
   .catch(err => {
     console.error('在线数据加载失败：', err);
-
     if (location.protocol.startsWith('http')) {
       toast(`在线数据加载失败：${err.message}`);
     }
   });
+</script>
+</body>
+</html>

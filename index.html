@@ -815,7 +815,7 @@ break;case"<bookViews":;case"<bookViews>":;case"</bookViews>":break;case"<workbo
   </div>
   <div style="margin-top:6px; border-top:1px dashed #E0CDB4; padding-top:5px">
     导入支持 Excel(.xlsx)/CSV/JSON，列名：邮编 网点名称 实时单量 负责人 联系电话 备注<br>
-    数据仅保存在当前浏览器中，如需更换电脑或共享，请优先导出JSON<br>
+    数据仅保存在当前浏览器(本机）中，如需更换电脑或共享，请优先导出JSON<br>
     边界数据：OS Open Postcode（真实 Postcode 边界）
 	  BT/IM 区域边界待接入
   </div>
@@ -859,7 +859,7 @@ window.addEventListener('unhandledrejection', function (event) {
 </script>
 <script>
 /* ════════════════════════════════════════════════
-   ① 配置区 —— 日常维护只需要动这里
+   ① 配置区 —— 各区日常维护只需要动这里
    ════════════════════════════════════════════════ */
 
 // 北区范围（删掉代码即可从地图移除该大区）
@@ -1274,7 +1274,7 @@ document.getElementById('impBtn').onclick = () => document.getElementById('impFi
 document.getElementById('impFile').onchange = function(){ if(this.files[0]) importFile(this.files[0]); this.value=''; };
 ui();
 
-/* ── 方案三：在线数据自动加载（静态托管模式） ── */
+/* ── ！切勿修改：静态托管模式 ── */
 const DATA_URL = './网点数据.json';
 
 fetch(DATA_URL + '?t=' + Date.now())

@@ -889,7 +889,9 @@ const STORE_KEY = 'jt_north_biz_v1';
 let BIZ_EDIT = {};
 try { BIZ_EDIT = JSON.parse(localStorage.getItem(STORE_KEY) || '{}'); } catch(e){ BIZ_EDIT = {}; }
 let BIZ_REMOTE = {};   // 由 data/网点数据.json 在线加载（方案三），加载失败自动降级
-function getBiz(code){ return Object.assign({}, BIZ_BASE[code] || {}, BIZ_REMOTE[code] || {}, BIZ_EDIT[code] || {}); }
+// 数据优先级：页面内置数据 < 浏览器本地编辑 < GitHub 远程 JSON
+// 远程 JSON 最后合并，确保它始终是最终权威数据源。
+function getBiz(code){ return Object.assign({}, BIZ_BASE[code] || {}, BIZ_EDIT[code] || {}, BIZ_REMOTE[code] || {}); }
 function isEdited(code){ return !!BIZ_EDIT[code]; }
 function saveBiz(code, obj){
   BIZ_EDIT[code] = obj;
